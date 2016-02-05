@@ -1,43 +1,36 @@
 package com.softdesign.school;
 
-import android.os.Build;
+import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
-import android.support.v7.widget.Toolbar;
-import android.view.Window;
-import android.view.WindowManager;
 
+import com.softdesign.school.ui.fragments.ContactsFragment;
+import com.softdesign.school.ui.fragments.ProfileFragment;
+import com.softdesign.school.ui.fragments.SettingFragment;
+import com.softdesign.school.ui.fragments.TasksFragment;
+import com.softdesign.school.ui.fragments.TeamFragment;
+import com.softdesign.school.utils.ImageCircle;
 import com.softdesign.school.utils.Lg;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
-    /**
-    * Creates a key-value for saving sets
-     */
-    public static final String VISIBLE_KEY = "visible";
-    public static final String TOOLBAR_COLOR_KEY = "toolBarColorKey";
-    public static final String STATUSBAR_COLOR_KEY = "statusBarColorKey";
 
-    /**
-    * Declare a variable for setting colors
-     */
-    public static int newToolBarColor =R.color.colorPrimary;
-    public static int newStatusBarColor =R.color.colorPrimaryDark;
-
-    CheckBox mCheckBox;
-    EditText mEditText;
-    EditText mEditText2;
     Toolbar mToolBar;
-    Button mBlue;
-    Button mGreen;
-    Button mRed;
+    private NavigationView mNavigationView;
+    private DrawerLayout mNavigationDrawer;
+    private Fragment mFragment;
+    private FrameLayout mFrameConteiner;
+    ImageCircle mCircleAvatar;
 
     /**
      *
@@ -57,19 +50,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Lg.e(this.getLocalClassName(), "on create");
 
-        mCheckBox = (CheckBox) findViewById(R.id.checkBox);
-        mCheckBox.setOnClickListener(this);
-        mEditText = (EditText) findViewById(R.id.editText);
-        mEditText2 = (EditText) findViewById(R.id.editText2);
         mToolBar = (Toolbar) findViewById(R.id.toolbar);
-        mRed = (Button) findViewById(R.id.btn_red);
-        mGreen = (Button) findViewById(R.id.btn_green);
-        mBlue = (Button) findViewById(R.id.btn_blue);
-        mRed.setOnClickListener(this);
-        mGreen.setOnClickListener(this);
-        mBlue.setOnClickListener(this);
-
+        mNavigationDrawer = (DrawerLayout)findViewById(R.id.navigation_drawer);
+        mNavigationView = (NavigationView)findViewById(R.id.navigation_view);
+        mCircleAvatar = (ImageCircle) findViewById(R.id.circle_avatar);
+        setupDrawer();
         setupToolbar();
+
+        if (savedInstanceState != null) {
+
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_conteiner, new ProfileFragment()).commit();
+        }
         }
 
     /**
@@ -84,62 +76,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    /**
-     * Create a toast message by click on icon
-     * @param item
-     * @return
+    /*
+    *Обработчик нажатия для NavigationDrawer (открывается слева)
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home){
-            Toast.makeText(this, "Menu click", Toast.LENGTH_SHORT).show();
+           mNavigationDrawer.openDrawer(GravityCompat.START);
         }
         return super.onOptionsItemSelected(item);
     }
 
     /**
-     * OnClickListener for CheckBox and buttons
-     * @param v
-     *
+     * Отрабатывает нажание кнопки Back
      */
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        switch (id){
-            case R.id.checkBox:
-                Toast.makeText(this, "Click!", Toast.LENGTH_SHORT).show();
-                if (mCheckBox.isChecked()){
-                mEditText2.setVisibility(View.INVISIBLE);
-                }else{
-                mEditText2.setVisibility(View.VISIBLE);
-                }
-                break;
-            case R.id.btn_blue:
-                newToolBarColor = R.color.blue;
-                newStatusBarColor = R.color.dark_blue;
-                break;
-            case R.id.btn_green:
-                newToolBarColor = R.color.green;
-                newStatusBarColor = R.color.dark_green;
-                break;
-            case R.id.btn_red:
-                newToolBarColor = R.color.red;
-                newStatusBarColor = R.color.dark_red;
-                break;
-        }
-        /**
-         * Sets color of tool bars background
-         */
-        mToolBar.setBackgroundResource(newToolBarColor);
-
-        /**
-         * Sets status bar color and check the build version for support status bar
-         */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(this.getResources().getColor(newStatusBarColor));
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            finish();
+            System.exit(0);
+        } else {
+            getSupportFragmentManager().popBackStack();
         }
     }
 
@@ -173,6 +129,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Lg.e(this.getLocalClassName(), "on restart");
     }
 
+    /**
+     * Обработчик нажатия на элементы меню
+     * Выделяет выбранный пункт меню
+     * Меняет содержимое фрагмента
+     * Выводит соответствующий Toast message
+     * Закрывает NavigationDrawer
+     */
+    private void setupDrawer(){
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.drawer_profile:
+                        mFragment = new ProfileFragment();
+                        mNavigationView.getMenu().findItem(R.id.drawer_profile).setChecked(true);
+                        Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.drawer_contacts:
+                        mFragment = new ContactsFragment();
+                        mNavigationView.getMenu().findItem(R.id.drawer_contacts).setChecked(true);
+                        Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.drawer_team:
+                        mFragment = new TeamFragment();
+                        mNavigationView.getMenu().findItem(R.id.drawer_team).setChecked(true);
+                        Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.drawer_tasks:
+                        mFragment = new TasksFragment();
+                        mNavigationView.getMenu().findItem(R.id.drawer_tasks).setChecked(true);
+                        Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.drawer_setting:
+                        mFragment = new SettingFragment();
+                        mNavigationView.getMenu().findItem(R.id.drawer_setting).setChecked(true);
+                        Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                if (mFragment != null){
+                    getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_conteiner, mFragment).addToBackStack(null).commit();
+                }
+                mNavigationDrawer.closeDrawers();
+                return false;
+            }
+        });
+
+    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -187,14 +192,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Lg.e(this.getLocalClassName(), "on save instance state");
-        outState.putBoolean(VISIBLE_KEY, mEditText2.getVisibility() == View.VISIBLE);
-        outState.putInt(TOOLBAR_COLOR_KEY, mToolBar.getResources().getColor(newToolBarColor));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            outState.putInt(STATUSBAR_COLOR_KEY, window.getStatusBarColor());
-        }
         }
 
     /**
@@ -205,14 +202,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         Lg.e(this.getLocalClassName(), "on restore instance state");
-        int visibleState = savedInstanceState.getBoolean(VISIBLE_KEY) ? View.VISIBLE : View.INVISIBLE;
-        mEditText.setVisibility(visibleState);
-        mToolBar.setBackgroundColor(savedInstanceState.getInt(TOOLBAR_COLOR_KEY, R.color.colorPrimary));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(savedInstanceState.getInt(STATUSBAR_COLOR_KEY, R.color.colorPrimaryDark));
-        }
     }
+
 }
