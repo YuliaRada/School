@@ -29,7 +29,6 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private Fragment mFragment;
     private FrameLayout mFrameConteiner;
     ImageCircle mCircleAvatar;
@@ -57,7 +56,9 @@ public class MainActivity extends AppCompatActivity {
         setTitle("School lesson 1");
 
         Lg.e(this.getLocalClassName(), "on create");
-
+        /**
+         * реализует ui
+         */
         ButterKnife.bind(this);
 
         mCircleAvatar = (ImageCircle) findViewById(R.id.circle_avatar);
