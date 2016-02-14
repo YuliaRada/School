@@ -1,17 +1,19 @@
 package com.softdesign.school;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.softdesign.school.ui.fragments.ContactsFragment;
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private Fragment mFragment;
     private FrameLayout mFrameConteiner;
     ImageCircle mCircleAvatar;
+    public CollapsingToolbarLayout mCollapsingToolbar;
+    public AppBarLayout mAppBar;
+    public AppBarLayout.LayoutParams params = null;
 
     /**
      *
@@ -57,11 +62,14 @@ public class MainActivity extends AppCompatActivity {
         setupDrawer();
         setupToolbar();
 
-        if (savedInstanceState != null) {
+        mAppBar = (AppBarLayout) findViewById(R.id.appbar_layout);
+        mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        mCollapsingToolbar.setExpandedTitleGravity(Gravity.BOTTOM);
+        mCollapsingToolbar.setExpandedTitleColor(getResources().getColor(R.color.dark_blue));
+        mCollapsingToolbar.setCollapsedTitleTextColor(getResources().getColor(R.color.dark_blue));
 
-        } else {
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_conteiner, new ProfileFragment()).commit();
-        }
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_container, new ProfileFragment()).commit();
         }
 
     /**
@@ -97,6 +105,39 @@ public class MainActivity extends AppCompatActivity {
         } else {
             getSupportFragmentManager().popBackStack();
         }
+    }
+
+    public void lockAppBar (boolean collapse) {
+        params = (AppBarLayout.LayoutParams) mCollapsingToolbar.getLayoutParams();
+        if (collapse) {
+            mAppBar.setExpanded(false);
+            AppBarLayout.OnOffsetChangedListener mListener = new AppBarLayout.OnOffsetChangedListener() {
+                @Override
+                public void onOffsetChanged(AppBarLayout mAppBar, int verticalOffset) {
+                    if (mCollapsingToolbar.getHeight() + verticalOffset <= ViewCompat.getMinimumHeight(mCollapsingToolbar) + getStatusBarHeight()) {
+                        params.setScrollFlags(0);
+                        mCollapsingToolbar.setLayoutParams(params);
+                        mAppBar.removeOnOffsetChangedListener(this);
+                    }
+                }
+
+            };
+            mAppBar.addOnOffsetChangedListener(mListener);
+            //mAppBar.setExpanded(false);
+        }else {
+            mAppBar.setExpanded(true);
+            params.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+            mCollapsingToolbar.setLayoutParams(params);
+        }
+    }
+
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     @Override
@@ -167,16 +208,14 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, item.getTitle().toString(), Toast.LENGTH_SHORT).show();
                         break;
                 }
-                if (mFragment != null){
-                    getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_conteiner, mFragment).addToBackStack(null).commit();
-                }
+                mNavigationView.getMenu().findItem(item.getItemId()).setChecked(true);
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_container, mFragment).addToBackStack(null).commit();
                 mNavigationDrawer.closeDrawers();
                 return false;
             }
         });
 
     }
-
 
     @Override
     protected void onDestroy() {
