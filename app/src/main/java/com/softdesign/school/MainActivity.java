@@ -24,17 +24,20 @@ import com.softdesign.school.ui.fragments.TeamFragment;
 import com.softdesign.school.utils.ImageCircle;
 import com.softdesign.school.utils.Lg;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
 
 
-    Toolbar mToolBar;
-    private NavigationView mNavigationView;
-    private DrawerLayout mNavigationDrawer;
     private Fragment mFragment;
     private FrameLayout mFrameConteiner;
     ImageCircle mCircleAvatar;
-    public CollapsingToolbarLayout mCollapsingToolbar;
-    public AppBarLayout mAppBar;
+    @Bind(R.id.toolbar) Toolbar mToolBar;
+    @Bind(R.id.navigation_view) NavigationView mNavigationView;
+    @Bind(R.id.navigation_drawer) DrawerLayout mNavigationDrawer;
+    @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbar;
+    @Bind(R.id.appbar_layout) AppBarLayout mAppBar;
     public AppBarLayout.LayoutParams params = null;
 
     /**
@@ -55,21 +58,17 @@ public class MainActivity extends AppCompatActivity {
 
         Lg.e(this.getLocalClassName(), "on create");
 
-        mToolBar = (Toolbar) findViewById(R.id.toolbar);
-        mNavigationDrawer = (DrawerLayout)findViewById(R.id.navigation_drawer);
-        mNavigationView = (NavigationView)findViewById(R.id.navigation_view);
+        ButterKnife.bind(this);
+
         mCircleAvatar = (ImageCircle) findViewById(R.id.circle_avatar);
         setupDrawer();
         setupToolbar();
 
-        mAppBar = (AppBarLayout) findViewById(R.id.appbar_layout);
-        mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         mCollapsingToolbar.setExpandedTitleGravity(Gravity.BOTTOM);
         mCollapsingToolbar.setExpandedTitleColor(getResources().getColor(R.color.dark_blue));
         mCollapsingToolbar.setCollapsedTitleTextColor(getResources().getColor(R.color.dark_blue));
 
-
-            getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_container, new ProfileFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_container, new ProfileFragment()).commit();
         }
 
     /**
