@@ -19,6 +19,17 @@
     <string name="fragment.team.description">Здесь будет команда</string>
     <string name="fragment.setting.description">Здесь будут настройки</string>
 
+    <string name="fragment.profile.phone.number">+7(555)888-88-88</string>
+    <string name="fragment.profile.phone.label.mobile">Мобильный</string>
+    <string name="fragment.profile.email.address">stalina@navas.net</string>
+    <string name="fragment.profile.email.label">E-mail</string>
+    <string name="fragment.profile.vk.account">https://vk.com/yuliarada</string>
+    <string name="fragment.profile.vk.label">Профиль в VK</string>
+    <string name="fragment.profile.git.rep">https://github.com/YuliaRada/School</string>
+    <string name="fragment.profile.git.label">Репозиторий</string>
+    <string name="fragment.profile.about.description">Аптека.Улица.Фонарь.</string>
+    <string name="fragment.profile.about.label">О себе</string>
+
     <string name="header.name">Кутлаева Юлия</string>
     <string name="header.rate">13</string>
     <string name="header.email">stalina@navas.net</string>
